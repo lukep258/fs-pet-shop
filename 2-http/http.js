@@ -73,6 +73,10 @@ const resSend=(index,res)=>{
 
 const inputError=(type,res)=>{
     switch(type){
+        case 'body':
+            console.error('user input invalid post request body')
+            sendIt(res,400,'text/plain','Bad Request')
+            break;
         case 'get':
             console.error('user input non-GET/POST requests')
         case 'pets':
@@ -96,15 +100,21 @@ const postUrl=(req,res)=>{
     let chunks=[]
     req.on('data',chunk=>chunks.push(chunk))
     req.on('end',()=>{
-        chunks = JSON.parse(chunks.join(' ').toString())
+        try{
+            chunks = JSON.parse(chunks.join(' ').toString())
+        }
+        catch(SyntaxError){
+            inputError('body',res)
+            return
+        }
         const petRegExp = /^\/pets\/(.*)$/;
         const petIndex = req.url.match(petRegExp)
         console.log(req.url)
-        petIndex?
-            chunks.name&&chunks.age&&chunks.kind?
-                postReq(chunks.age,chunks.kind,chunks.name,res):
-                inputError('body'):
-            inputError('pets')            
+        petIndex&&!petIndex[1]?
+            chunks.name&&parseInt(chunks.age)>-1&&chunks.kind?
+                postReq(parseInt(chunks.age),chunks.kind,chunks.name,res):
+                inputError('body',res):
+            inputError('pets',res)
     })
 }
 
