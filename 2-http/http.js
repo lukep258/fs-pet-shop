@@ -4,6 +4,7 @@ import fs, { readFile } from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import http from 'http'
+import { send } from 'process'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const petsPath = path.join(__dirname,'../pets.json')
@@ -20,13 +21,20 @@ const init=()=>{
 
 
 const reqHandler =(req,res)=>{
-    req.method==='GET'?
-        reqUrl(req.url,res):
-        inputError('get',res)
+    switch(req.method){
+        case 'GET':
+            reqUrl(req.url,res)
+            break
+        case 'POST':
+            postUrl(req,res)
+            break
+        default:
+            inputError('get',res)
+    }
 }
 
 
-//without RegEx
+//reqUrl without RegEx
 // const reqUrl=(url,res)=>{
 //     const urlArr=url.split('/')
 //     console.log(urlArr)
@@ -37,8 +45,8 @@ const reqHandler =(req,res)=>{
 //         inputError('pets',res)
 // }
 
-//withRegEx
-const reqUrl=(url,res)=>{
+
+const reqUrl=(url,res)=>{//with RegEx
     const petRegExp = /^\/pets\/(.*)$/;
     const petIndex = url.match(petRegExp)
     console.log(petIndex)
@@ -66,7 +74,7 @@ const resSend=(index,res)=>{
 const inputError=(type,res)=>{
     switch(type){
         case 'get':
-            console.error('user input non-GET requests')
+            console.error('user input non-GET/POST requests')
         case 'pets':
             console.error('user input non-pets endpoints')
         case 'index':
@@ -82,5 +90,40 @@ const sendIt=(res,status,type,body)=>{
     res.setHeader('Content-Type',type)
     return res.end(body)
 }
+
+
+const postUrl=(req,res)=>{
+    let chunks=[]
+    req.on('data',chunk=>chunks.push(chunk))
+    req.on('end',()=>{
+        chunks = JSON.parse(chunks.join(' ').toString())
+        const petRegExp = /^\/pets\/(.*)$/;
+        const petIndex = req.url.match(petRegExp)
+        console.log(req.url)
+        petIndex?
+            chunks.name&&chunks.age&&chunks.kind?
+                postReq(chunks.age,chunks.kind,chunks.name,res):
+                inputError('body'):
+            inputError('pets')            
+    })
+}
+
+
+const postReq=(age,kind,name,res)=>{
+    fs.readFile(petsPath,'utf8',(err,data)=>{
+        let petsArr = JSON.parse(data)
+        const petObj = {age:age,kind:kind,name:name}
+
+        petsArr.push(petObj)
+        petsArr = JSON.stringify(petsArr)
+        console.log(petsArr)
+        console.log(petObj)
+
+        fs.writeFile(petsPath,petsArr,()=>{})
+
+        sendIt(res,200,'application/json',JSON.stringify(petObj))
+    })
+}
+
 
 init()
