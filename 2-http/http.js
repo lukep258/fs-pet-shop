@@ -7,7 +7,6 @@ import http from 'http'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const petsPath = path.join(__dirname,'../pets.json')
-console.log(petsPath)
 const port = 8000
 
 
@@ -27,12 +26,26 @@ const reqHandler =(req,res)=>{
 }
 
 
+//without RegEx
+// const reqUrl=(url,res)=>{
+//     const urlArr=url.split('/')
+//     console.log(urlArr)
+//     urlArr[1]==='pets'?
+//         urlArr[2]?
+//             resSend(urlArr[2],res):
+//             resSend('def',res):
+//         inputError('pets',res)
+// }
+
+//withRegEx
 const reqUrl=(url,res)=>{
-    const urlArr=url.split('/')
-    console.log(urlArr)
-    urlArr[1]==='pets'?
-        urlArr[2]?
-            resSend(urlArr[2],res):
+    const petRegExp = /^\/pets\/(.*)$/;
+    const petIndex = url.match(petRegExp)
+    console.log(petIndex)
+
+    petIndex?
+        petIndex[1]?
+            resSend(petIndex[1],res):
             resSend('def',res):
         inputError('pets',res)
 }
@@ -40,7 +53,6 @@ const reqUrl=(url,res)=>{
 
 const resSend=(index,res)=>{
     fs.readFile(petsPath,'utf8',(err,data)=>{
-        console.log(index,data)
         const petsArr = JSON.parse(data)
         index==='def'?
             sendIt(res,200,'application/json',JSON.stringify(petsArr)):
@@ -63,6 +75,7 @@ const inputError=(type,res)=>{
             sendIt(res,404,'text/plain','Not Found')
     }
 }
+
 
 const sendIt=(res,status,type,body)=>{
     res.statusCode = status
