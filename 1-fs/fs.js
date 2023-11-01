@@ -1,5 +1,6 @@
 import fs from "fs"
 
+
 const inputError=(errorType)=>{
     switch(errorType){
         case 'command':
@@ -24,8 +25,9 @@ const inputError=(errorType)=>{
 
 const init=()=>{
     fs.readFile('../pets.json','utf8',(err,data)=>{
-        const petArr = JSON.parse(data)
         const input = process.argv
+        changeDir(input[1])
+        const petArr = JSON.parse(data)
 
         switch(input[2]){
             case 'read':
@@ -79,12 +81,22 @@ const updatePet=(data,index,age,kind,name)=>{
 
 const destroyPet=(data,index)=>{
     console.log(dataArr[index])
-    
+
     const dataArr = data
     dataArr.splice(index,1)
 
     const returnJSONObj = JSON.stringify(dataArr)
     fs.writeFile('../pets.json',returnJSONObj,()=>{})
+}
+
+
+const changeDir=(dir)=>{
+    console.log(dir)
+    let dirTo = dir.split('\\')
+    dirTo.pop()
+    dirTo = dirTo.join('\\')
+    console.log(dirTo)
+    process.chdir(dir)
 }
 
 init()
