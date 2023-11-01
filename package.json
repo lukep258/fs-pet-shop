@@ -4,7 +4,7 @@
   "type": "module",
   "description": "A small server app to demonstrate CRUD over an HTTP API",
   "scripts": {
-    "start": "nodemon"
+    "start": "nodemon http.js"
   },
   "repository": {
     "type": "git",
@@ -25,6 +25,6 @@
   "dependencies": {
     "nodemon": "^1.9.1"
   },
-  "main": "index.js",
+  "main": "./2-http/http.js",
   "devDependencies": {}
 }
