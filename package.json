@@ -4,7 +4,7 @@
   "type": "module",
   "description": "A small server app to demonstrate CRUD over an HTTP API",
   "scripts": {
-    "start": "nodemon http.js"
+    "start": "nodemon express.js"
   },
   "repository": {
     "type": "git",
@@ -23,8 +23,8 @@
   },
   "homepage": "https://github.com/gSchool/fs-pet-shop#readme",
   "dependencies": {
+    "express": "^4.18.2",
     "nodemon": "^1.9.1"
   },
-  "main": "./2-http/http.js",
-  "devDependencies": {}
+  "main": "./3-express/express.js"
 }
