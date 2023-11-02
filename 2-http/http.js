@@ -1,10 +1,9 @@
 `use strict`
 
-import fs, { readFile } from 'fs'
+import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import http from 'http'
-import { send } from 'process'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const petsPath = path.join(__dirname,'../pets.json')
@@ -20,7 +19,7 @@ const init=()=>{
 }
 
 
-const reqHandler =(req,res)=>{
+const reqHandler=(req,res)=>{
     switch(req.method){
         case 'GET':
             reqUrl(req.url,res)
