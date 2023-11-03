@@ -3,14 +3,13 @@
 import fs from 'fs' // File system manager module
 import path from 'path' // Path module
 import { fileURLToPath } from 'url' // URL module, convert path to URL
-
-
 import express from 'express' // express module import
 
 // GLOBAL VARIABLE DECLARATION
 const app = express(); // Assign express function to app variable
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url)) 
 const petsPath = path.join(__dirname,'../pets.json') // Path to pets.json file
 const port = 8000 // Define port for client
@@ -18,16 +17,16 @@ const port = 8000 // Define port for client
 
 // PROGRAM START FUNCTION
 const init=()=>{
-    //input validation - ln37
+    //input validation - ln 38
     URLError()
 
-    //GET instance - ln 53
+    //GET instance - ln 54
     serverInstanceGET()
 
-    //POST instance - ln 71
+    //POST instance - ln 69
     serverInstancePOST()
 
-    //catchAll - ln 63
+    //catchAll - ln 86
     errorRes()
 
     //listener
@@ -45,7 +44,7 @@ const URLError=()=>{
                 route[3]?
                     next({message:'invalid endpoint',status:401}): // Send 401 error: client request needs authentication credentials
                     next():
-                next({message:'incorrect endpoint', status: 402}): 
+                next({message:'invalid endpoint', status: 402}): 
             next()
     })
 }
@@ -54,7 +53,6 @@ const URLError=()=>{
 //instance
 const serverInstanceGET=()=>{
     app.get(/^\/pets(.*)$/,(req,res,next)=>{
-        console.log('getting')
         const urlInput=req.params['0']
         // Invoke fs.readFile to access and convert for client get request
         fs.readFile(petsPath,'utf8',(err,data)=>{
@@ -70,8 +68,6 @@ const serverInstanceGET=()=>{
 
 const serverInstancePOST=()=>{
     app.post(/^\/pets(.*)$/,(req,res,next)=>{
-        console.log('posting')
-
         fs.readFile(petsPath,'utf8',(err,data)=>{
             let petsArr = JSON.parse(data)
 
