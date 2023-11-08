@@ -4,7 +4,7 @@
   "type": "module",
   "description": "A small server app to demonstrate CRUD over an HTTP API",
   "scripts": {
-    "start": "nodemon express.js"
+    "start": "nodemon restful.js"
   },
   "repository": {
     "type": "git",
@@ -26,5 +26,5 @@
     "express": "^4.18.2",
     "nodemon": "^1.9.1"
   },
-  "main": "./3-express/express.js"
+  "main": "./4-restful/restful.js"
 }
