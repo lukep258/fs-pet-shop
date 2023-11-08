@@ -3,7 +3,7 @@
 import fs from 'fs' // File system manager module
 import path from 'path' // Path module
 import { fileURLToPath } from 'url' // URL module, convert path to URL
-import express, { json } from 'express' // express module import
+import express from 'express' // express module import
 
 // GLOBAL VARIABLE DECLARATION
 const app = express(); // Assign express function to app variable
