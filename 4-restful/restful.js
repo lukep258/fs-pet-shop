@@ -1,71 +1,82 @@
 `use strict`
  // CORE MODULES IMPORT
-import fs from 'fs' // File system manager module
-import path from 'path' // Path module
-import { fileURLToPath } from 'url' // URL module, convert path to URL
-import express from 'express' // express module import
+import fs from 'fs' 
+import path from 'path' 
+import { fileURLToPath } from 'url' 
+import express from 'express' 
+import pg from 'pg' 
 
 // GLOBAL VARIABLE DECLARATION
-const app = express(); // Assign express function to app variable
+const app = express(); 
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 
+// set petsPath
 const __dirname = path.dirname(fileURLToPath(import.meta.url)) 
-const petsPath = path.join(__dirname,'../pets.json') // Path to pets.json file
-const port = 8000 // Define port for client
+const petsPath = path.join(__dirname,'../pets.json')
+const port = 8000 
 
+// client.connect()
+// .then(()=>{
+//     client.query('SELECT * FROM pets')
+//     .then(result=>{
+//         console.log(result.rows)
+//         client.end()
+//     })
+// })
 
 // PROGRAM START FUNCTION
 const init=()=>{
-    //input validation
-    URLError()
+    client.connect()
+    .then(()=>{
+        //url validation
+        URLError()
 
-    //GET instance
-    serverInstanceGET()
+        //GET instance
+        serverInstanceGET()
 
-    //input validation for POST req
-    postError()
+        //body validation for POST req
+        postError()
 
-    //POST instance
-    serverInstancePOST()
+        //POST instance
+        serverInstancePOST()
 
-    //DELETE instance
-    serverInstanceDELETE()
+        //DELETE instance
+        serverInstanceDELETE()
 
-    //PATCH instance
-    serverInstancePATCH()
+        //PATCH instance
+        serverInstancePATCH()
 
-    //catchAll
-    errorRes()
+        //catchAll
+        errorRes()
+    })
 
     //listener
     app.listen(port,()=>{console.log(`Listening on ${port}`)})
 }
 
 
-//input Validation
+//url Validation
 const URLError=()=>{
     app.use((req,res,next)=>{
         const route = req.url.split('/')
 
-        route[1]!=='pets'&&route.length>2&&parseInt(route[2])>-1?
+        route[1]!=='pets'||route.length>3||parseInt(route[2])<0?
             next({message:'invalid endpoint', status: 404}):
             next()
     })
 }
 
-
 //get server instance
 const serverInstanceGET=()=>{
     app.get(/^\/pets(.*)$/,(req,res)=>{
         const urlInput=req.params['0']
-        // Invoke fs.readFile to access and convert for client get request
-        fs.readFile(petsPath,'utf8',(err,data)=>{
-            const fileArr = JSON.parse(data) //parse to JSON format for get request
-            
+
+        client.query('select * from pets')
+        .then(result=>{
             urlInput[1]?
-                res.send(fileArr[urlInput[1]]):
-                res.send(fileArr)
+                res.send(result.rows[urlInput[1]]):
+                res.send(result.rows)
         })
     })
 }
@@ -140,4 +151,17 @@ const errorRes=()=>{
 }
 
 
+const newClient=()=>{
+    const client = new pg.Client({
+        user: 'postgres',
+        host: 'localhost',
+        database: 'postgres',
+        password: 'null',
+        port: 5432
+    })
+    return client
+}
+
+
+const client = newClient()
 init() // Run init file and start program
