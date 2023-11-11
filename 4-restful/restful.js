@@ -27,7 +27,7 @@ const port = 8000
 
 // PROGRAM START FUNCTION
 const init=()=>{
-    client.connect()
+    pool.connect()
     .then(()=>{
         //url validation
         URLError()
@@ -72,7 +72,7 @@ const serverInstanceGET=()=>{
     app.get(/^\/pets(.*)$/,(req,res)=>{
         const urlInput=req.params['0']
 
-        client.query('select * from pets')
+        pool.query('select * from pets')
         .then(result=>{
             urlInput[1]?
                 res.send(result.rows[urlInput[1]]):
@@ -93,52 +93,31 @@ const postError=()=>{
 //post server instance
 const serverInstancePOST=()=>{
     app.post(/^\/pets(.*)$/,(req,res)=>{
-        fs.readFile(petsPath,'utf8',(err,data)=>{
-            let petsArr = JSON.parse(data)
-
-            petsArr.push(req.body)
-            petsArr = JSON.stringify(petsArr)
-    
-            fs.writeFile(petsPath,petsArr,()=>{})
-    
-            res.send(req.body)
-        })
+        pool.query(`insert into pets (age,kind,name) values (${req.body.age},'${req.body.kind}','${req.body.name}')`)
+        res.send(req.body)
     })
 }
 
 //delete server instance
 const serverInstanceDELETE=()=>{
     app.delete(/^\/pets(.*)$/,(req,res)=>{
-        fs.readFile(petsPath,'utf8',(err,data)=>{
-            let petsArr = JSON.parse(data)
-            const urlInput = req.params['0']
-            const indexedPet = petsArr[urlInput[1]]
-
-            petsArr.splice(urlInput[1],1)
-            petsArr = JSON.stringify(petsArr)
-
-            fs.writeFile(petsPath,petsArr,()=>{})
-
-            res.send(indexedPet)
+        pool.query(`select * from pets where id=${req.params['0'][1]}`)
+        .then(result=>{
+            res.send(result.rows)
         })
+        pool.query(`delete from pets where id=${req.params['0'][1]}`)
     })
 }
 
 //patch server instance
 const serverInstancePATCH=()=>{
     app.patch(/^\/pets(.*)$/,(req,res)=>{
-        fs.readFile(petsPath,'utf8',(err,data)=>{
-            let petsArr = JSON.parse(data)
-
-            for(let key in req.body){
-                petsArr[req.params['0'][1]][key]=req.body[key]
-            }
-            const indexedPet = petsArr[req.params['0'][1]]
-            petsArr=JSON.stringify(petsArr)
-
-            fs.writeFile(petsPath,petsArr,()=>{})
-
-            res.send(indexedPet)
+        for(let key in req.body){
+            pool.query(`update pets set ${key}='${req.body[key]}' where id=${req.params['0'][1]}`)
+        }
+        pool.query(`select * from pets where id=${req.params['0'][1]}`)
+        .then(result=>{
+            res.send(result.rows)
         })
     })
 }
@@ -151,17 +130,17 @@ const errorRes=()=>{
 }
 
 
-const newClient=()=>{
-    const client = new pg.Client({
+const newPool=()=>{
+    const pool = new pg.Pool({
         user: 'postgres',
         host: 'localhost',
         database: 'postgres',
         password: 'null',
         port: 5432
     })
-    return client
+    return pool
 }
 
 
-const client = newClient()
+const pool = newPool()
 init() // Run init file and start program
