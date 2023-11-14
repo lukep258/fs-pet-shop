@@ -1,8 +1,5 @@
 `use strict`
  // CORE MODULES IMPORT
-import fs from 'fs' 
-import path from 'path' 
-import { fileURLToPath } from 'url' 
 import express from 'express' 
 import pg from 'pg' 
 
@@ -10,20 +7,8 @@ import pg from 'pg'
 const app = express(); 
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
-
-// set petsPath
-const __dirname = path.dirname(fileURLToPath(import.meta.url)) 
-const petsPath = path.join(__dirname,'../pets.json')
 const port = 8000 
 
-// client.connect()
-// .then(()=>{
-//     client.query('SELECT * FROM pets')
-//     .then(result=>{
-//         console.log(result.rows)
-//         client.end()
-//     })
-// })
 
 // PROGRAM START FUNCTION
 const init=()=>{
@@ -61,7 +46,7 @@ const URLError=()=>{
     app.use((req,res,next)=>{
         const route = req.url.split('/')
 
-        route[1]!=='pets'||route.length>3||parseInt(route[2])<0?
+        route[1]!=='pets'||route.length>3||parseInt(route[2])<0||req.headers.authorization!=='Basic YWRtaW46bWVvd21peA=='?
             next({message:'invalid endpoint', status: 404}):
             next()
     })
